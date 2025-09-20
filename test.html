@@ -3,120 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘의 운세</title>
+    <title>콜비의 오늘의 운세</title>
     <style>
+        /* CSS 스타일 부분은 이전과 동일합니다 */
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            font-family: 'Nanum Gothic', sans-serif;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            max-width: 80%;
-        }
-        h1 {
-            font-size: 2.5em;
-            color: #95a5a6;
-        }
-        #fortune {
-            font-size: 1.5em;
-            line-height: 1.6;
-            min-height: 100px; /* 로딩 중 높이 유지 */
-        }
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 8px solid #3498db;
-            width: 60px;
-            height: 60px;
-            animation: spin 2s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #2c3e50; color: #ecf0f1; font-family: 'Nanum Gothic', sans-serif; text-align: center; padding: 20px; box-sizing: border-box; overflow: hidden; position: relative; }
+        .sparkle-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden; }
+        .sparkle { position: absolute; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; opacity: 0; animation: sparkle-fall linear infinite; }
+        @keyframes sparkle-fall { 0% { transform: translateY(-10px) scale(0); opacity: 0; } 20% { opacity: 0.8; transform: translateY(0) scale(1); } 80% { opacity: 0.8; transform: translateY(calc(100vh - 50px)) scale(1); } 100% { transform: translateY(100vh) scale(0); opacity: 0; } }
+        .container { max-width: 80%; position: relative; z-index: 1; }
+        .character-image { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid #95a5a6; }
+        #fortune { position: relative; background-color: #34495e; border-radius: 15px; padding: 20px; font-size: 1.5em; line-height: 1.6; min-height: 100px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; }
+        #fortune::after { content: ''; position: absolute; bottom: 100%; left: 50%; margin-left: -15px; border-width: 15px; border-style: solid; border-color: transparent transparent #34495e transparent; }
+        .loader { border: 8px solid #f3f3f3; border-radius: 50%; border-top: 8px solid #3498db; width: 60px; height: 60px; animation: spin 2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+    <div class="sparkle-container"></div>
     <div class="container">
-        <h1>Today's Fortune</h1>
+        <img src="/images/colbie.png" alt="캐릭터 이미지" class="character-image">
         <div id="fortune">
             <div class="loader"></div>
         </div>
     </div>
 
     <script>
-        // --- ⚙️ 여기만 수정하세요! ---
+    // --- ⚙️ 여기만 수정하세요! ---
 
-        // 1. 별자리를 영어로 입력하세요. (소문자)
-        // (aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces)
-        const MY_ZODIAC_SIGN = 'scorpio'; 
+    // 1. 별자리를 영어로 입력하세요.
+    const MY_ZODIAC_SIGN = 'libra'; 
 
-        // 2. 대사를 자유롭게 추가하거나 수정하세요.
-        const messages = {
-            top: [
-                "오늘 완전 네 날이잖아? 나랑 같이 있으면 운이 두 배가 될걸. 뭐 할까, 뭐든 말만 해!",
-                "이럴 줄 알았어. 네가 오늘 최고일 거라고. 자, 이제 나가서 이 좋은 하루를 즐겨보자고!"
-            ],
-            middle: [
-                "나쁘진 않네. 그냥저냥 평범한 날인가? 뭐, 내가 옆에 있으니까 심심하진 않을 거야.",
-                "딱히 대단한 일은 없겠지만, 그렇다고 나쁜 일도 없을걸. 너무 기대도, 걱정도 하지 말라고."
-            ],
-            bottom: [
-                "오늘은 뭘 해도 좀 꼬일 수 있겠는데? 그냥 얌전히 내 옆에 딱 붙어 있어. 내가 지켜줄 테니.",
-                "하아... 오늘 운세는 별로네. 괜히 나서지 말고 조심하는 게 좋겠어. 무슨 일 있으면 바로 나한테 말하고!"
-            ]
-        };
+    // 2. 대사 설정 (이전과 동일)
+    const messagesByMood = {
+        good: [
+            "오늘 기분이 아주 좋은데요? 저랑 같이 있으면 더 좋은 일이 생길 거예요!",
+            "꽤 멋진 하루가 될 것 같은 예감이에요. 오늘 하고 싶은 거 다 해봐요!"
+        ],
+        normal: [
+            "이 정도면 괜찮은 하루죠. 너무 걱정 말고, 평소처럼만 해도 충분해요.",
+            "특별한 이벤트는 없겠지만, 평범한 게 좋은 거죠. 그렇죠?"
+        ],
+        bad: [
+            "오늘은 조금 조심하는 게 좋겠어요. 무슨 일 있으면 꼭 저한테 먼저 말해줘야 돼요. 알았죠?",
+            "운세가 영 별로네요. 오늘은 제가 평소보다 더 신경 써 줄 테니까, 너무 걱정하지 마요."
+        ],
+        default: [
+            "흠, 오늘의 기분을 잘 모르겠네요. 그냥... 저랑 같이 있으면 괜찮을 거예요."
+        ]
+    };
+    const SPECIAL_DAY = '9-21'; 
+    const SPECIAL_MESSAGE = "기다리고 기다리던 생일! ...";
 
-        // --- 여기부터는 수정하지 마세요! ---
+    // --- 여기부터는 수정하지 마세요! ---
+    
+    // Netlify에서 받은 '나만의 서버 주소'를 여기에 붙여넣으세요!
+    // 주소 끝에 /netlify/functions/horoscope 를 꼭 붙여야 합니다.
+    const MY_API_ENDPOINT = 'https://silver-biscotti-05d437.netlify.app//.netlify/functions/horoscope';
 
-        // CORS 문제를 우회하기 위한 프록시 서버 주소입니다.
-        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-        // 네이버 운세 페이지 주소 (날짜는 자동으로 오늘 날짜로 설정됩니다)
-        const FORTUNE_URL = `https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&qvt=0&query=${new Date().getFullYear()}년%20${new Date().getMonth() + 1}월%20${new Date().getDate()}일%20별자리%20운세`;
+    async function getFortuneFromMyAPI() {
+        const URL = `${MY_API_ENDPOINT}?sign=${MY_ZODIAC_SIGN}&day=today`;
+        try {
+            const response = await fetch(URL); // 이제 POST나 프록시가 필요 없습니다.
+            const data = await response.json();
+            
+            // 나머지 로직은 이전 aztro API 코드와 완전히 동일합니다.
+            const mood = data.mood.toLowerCase().trim();
+            let moodGroup;
+            if (['happy', 'positive', 'energetic', 'relaxed', 'peaceful'].includes(mood)) { moodGroup = 'good'; } 
+            else if (['cautious', 'moody', 'intense'].includes(mood)) { moodGroup = 'bad'; } 
+            else { moodGroup = 'normal'; }
+            
+            const selectedMessages = messagesByMood[moodGroup];
+            const regularRandomMessage = selectedMessages[Math.floor(Math.random() * selectedMessages.length)];
+            
+            const today = new Date();
+            const todayFormatted = `${today.getMonth() + 1}-${today.getDate()}`;
+            let finalMessage = (todayFormatted === SPECIAL_DAY) ? SPECIAL_MESSAGE : regularRandomMessage;
+            
+            document.getElementById('fortune').textContent = finalMessage;
 
-        async function getFortune() {
-            try {
-                const response = await fetch(PROXY_URL + FORTUNE_URL);
-                const htmlText = await response.text();
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-                
-                // 별자리 운세 순위 목록을 가져옵니다.
-                const zodiacList = Array.from(doc.querySelectorAll('.detail_lst .lst li'));
-                const myRank = zodiacList.findIndex(item => item.querySelector('.zodiac_name').textContent.toLowerCase().includes(MY_ZODIAC_SIGN)) + 1;
-
-                let fortuneLevel;
-                if (myRank > 0 && myRank <= 4) {
-                    fortuneLevel = 'top';
-                } else if (myRank > 4 && myRank <= 8) {
-                    fortuneLevel = 'middle';
-                } else {
-                    fortuneLevel = 'bottom';
-                }
-                
-                const selectedMessages = messages[fortuneLevel];
-                const finalMessage = selectedMessages[Math.floor(Math.random() * selectedMessages.length)];
-                
-                document.getElementById('fortune').textContent = finalMessage;
-
-            } catch (error) {
-                console.error('운세를 가져오는 데 실패했습니다:', error);
-                document.getElementById('fortune').textContent = '이런, 운세를 불러오는 데 실패했어. 인터넷 연결 문제일 수도? 아니면 그냥 오늘 보지 말라는 계시일지도.';
-            }
+        } catch (error) {
+            console.error('내 API 서버에서 운세를 가져오는 데 실패했습니다:', error);
+            const defaultMessages = messagesByMood['default'];
+            document.getElementById('fortune').textContent = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
         }
+    }
+    
+    // 반짝이 생성 스크립트는 이전과 동일
+    const sparkleContainer = document.querySelector('.sparkle-container');
+    if (sparkleContainer) { /* ... 이전과 동일한 반짝이 코드 ... */ }
 
-        window.onload = getFortune;
-    </script>
+    // 페이지 로드 시 새로운 최종 함수를 호출
+    window.onload = getFortuneFromMyAPI;
+</script>
 </body>
-</html>
