@@ -40,24 +40,32 @@
             background-color: white;
             border-radius: 50%;
             opacity: 0;
-            animation: twinkle-animation linear infinite;
             filter: blur(1px); 
             box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.5);
         }
         @keyframes twinkle-animation {
             0%, 100% {
                 opacity: 0;
-                transform: scale(0.8); /* 살짝 줄어들었다가 커지는 효과 */
+                transform: scale(0.8);
             }
             50% {
                 opacity: 1;
-                transform: scale(1); /* 최대로 커짐 */
+                transform: scale(1);
             }
         }
-        .container {
-            max-width: 100%;
-            position: relative;
+        .page-container{
+            position: absolute;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
             z-index: 1;
+        }
+        .hidden{
+            opacity:0;
+            pointer-events:none;
         }
         #fortune {
             font-size: 16px;
@@ -74,22 +82,71 @@
             background-repeat: no-repeat;
             background-size: 100% 100%;
         }
-
         .character-image {
             max-width: 100%;
             width: 250px;   
             object-fit: cover;
         }
 
+        #loading-container h2 { font-size: 20px; }
+        .progress-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 20px auto 0;
+        }
+        .loader-image {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        .progress-ring {
+            width: 130px;
+            height: 130px;
+        }
+        .progress-ring__circle {
+            stroke-width: 6px;
+            stroke: #ffffff;
+            fill: transparent;
+            r: 58;
+            cx: 65;
+            cy: 65;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-dasharray: 364 364;
+            stroke-dashoffset: 364;
+            animation: progress-fill 1.5s linear forwards;
+        }
+        @keyframes progress-fill {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
     </style>
 </head>
 <body>
     <div class="sparkle-container"></div>
-    <div class="container">
-        <div id="fortune">
-            <div class="loader"></div>
+
+    <div id="loading-container" class="page-container">
+        <h2>오늘의 운세를 불러오는 중...</h2>
+        <div class="progress-container">
+            <img src="./clover.png" alt="로딩 이미지" class="loader-image">
+            <svg class="progress-ring">
+                <circle class="progress-ring__circle" />
+            </svg>
         </div>
-        <h1><img src="./clover.png" alt="캐릭터 이미지" class="character-image"></h1>
+    </div>
+
+    <div id="result-container" class="page-container hidden">
+        <div id="fortune"></div>
+        <img src="./clover.png" alt="캐릭터 이미지" class="character-image">
     </div>
 
     <script>
@@ -195,59 +252,64 @@
             
         ];
 
+        const loadingContainer = document.getElementById('loading-container');
+        const resultContainer = document.getElementById('result-container');
 
-        function showMessage() {
+        // 페이지 로드 완료 시 실행
+        window.onload = function() {
+            const message = getFortuneMessage();
+            document.getElementById('fortune').textContent = message;
+
+            // 1.5초 후에 화면 전환
+            setTimeout(() => {
+                loadingContainer.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+            }, 1500); // 1.5초 (1500ms)
+        };
+
+        function getFortuneMessage() {
             const today = new Date();
-            const todayFormatted = `${today.getMonth() + 1}-${today.getDate()}`;
-            
-            let finalMessage = '';
-            let isSpecialDay = false;
-
+            const todayFormatted = `${today.getMonth()+1}-${today.getDate()}`;
             for (const day of specialDays) {
                 if (todayFormatted === day.date) {
-                    const randomIndex = Math.floor(Math.random() * day.messages.length);
-                    finalMessage = day.messages[randomIndex];
-                    
-                    isSpecialDay = true;
-                    break;
+                    const randomIndex = Math.floor(Math.random()*day.messages.length);
+                    return day.messages[randomIndex];
                 }
             }
-
-            if (!isSpecialDay) {
-                const randomIndex = Math.floor(Math.random() * regularMessages.length);
-                finalMessage = regularMessages[randomIndex];
-            }
-            
-            document.getElementById('fortune').textContent = finalMessage;
+            const randomIndex = Math.floor(Math.random()*regularMessages.length);
+            return regularMessages[randomIndex];
         }
 
         const sparkleContainer = document.querySelector('.sparkle-container');
         if (sparkleContainer) {
             const numSparkles = 60;
-            
+
             function createSparkle() {
                 const sparkle = document.createElement('div');
                 sparkle.classList.add('sparkle');
+                
                 const size = Math.random() * 4 + 2;
                 sparkle.style.width = `${size}px`;
                 sparkle.style.height = `${size}px`;
                 sparkle.style.left = `${Math.random() * 100}%`;
                 sparkle.style.top = `${Math.random() * 100}%`;
-                sparkle.style.animationDuration = `${Math.random() * 2 + 3}s`;
-                sparkle.style.animationDelay = `${Math.random() * -3}s`;
+                
+                const duration = Math.random() * 1.5 + 3;
+                sparkle.style.animation = `twinkle-animation ${duration}s ease-in-out forwards`;
+                
                 sparkleContainer.appendChild(sparkle);
-                setTimeout(() => {
+
+                sparkle.addEventListener('animationend', () => {
                     sparkle.remove();
                     createSparkle();
-                }, (Math.random() * 2 + 3) * 1000);
+                });
             }
 
             for (let i = 0; i < numSparkles; i++) {
-                createSparkle();
+                setTimeout(createSparkle, Math.random() * 2000); 
             }
         }
 
-        window.onload = showMessage;
     </script>
 </body>
 </html>
