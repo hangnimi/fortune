@@ -57,7 +57,7 @@
             position: absolute;
             width: 100%;
             max-width: 400px;
-            padding: 20px;
+            padding: 20px 30px;
             box-sizing: border-box;
             opacity: 1;
             transition: opacity 0.5s ease-in-out;
@@ -71,16 +71,26 @@
             font-size: 16px;
             line-height: 1.6;
             min-height: 113px; 
-            max-width: 432px;
             word-break: auto-phrase;
-            padding: 25px 15px 35px;
+            padding: 25px 35px 45px;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
+            transform: scale(0);
+            opacity: 0; 
             background-image: url(./bubble.svg);
             background-repeat: no-repeat;
             background-size: 100% 100%;
+        }
+        #fortune.animate {
+            animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
         }
         .character-image {
             max-width: 100%;
@@ -254,57 +264,52 @@
 
         const loadingContainer = document.getElementById('loading-container');
         const resultContainer = document.getElementById('result-container');
+        const fortuneEl = document.getElementById('fortune');
 
-        // 페이지 로드 완료 시 실행
         window.onload = function() {
             const message = getFortuneMessage();
-            document.getElementById('fortune').textContent = message;
-
-            // 1.5초 후에 화면 전환
+            
             setTimeout(() => {
                 loadingContainer.classList.add('hidden');
                 resultContainer.classList.remove('hidden');
-            }, 1500); // 1.5초 (1500ms)
+                
+                fortuneEl.textContent = message;
+                
+                fortuneEl.classList.add('animate');
+
+            }, 1500);
         };
 
         function getFortuneMessage() {
             const today = new Date();
-            const todayFormatted = `${today.getMonth()+1}-${today.getDate()}`;
+            const todayFormatted = `${today.getMonth() + 1}-${today.getDate()}`;
             for (const day of specialDays) {
                 if (todayFormatted === day.date) {
-                    const randomIndex = Math.floor(Math.random()*day.messages.length);
+                    const randomIndex = Math.floor(Math.random() * day.messages.length);
                     return day.messages[randomIndex];
                 }
             }
-            const randomIndex = Math.floor(Math.random()*regularMessages.length);
+            const randomIndex = Math.floor(Math.random() * regularMessages.length);
             return regularMessages[randomIndex];
         }
-
+        
         const sparkleContainer = document.querySelector('.sparkle-container');
         if (sparkleContainer) {
             const numSparkles = 60;
-
             function createSparkle() {
                 const sparkle = document.createElement('div');
                 sparkle.classList.add('sparkle');
-                
                 const size = Math.random() * 4 + 2;
-                sparkle.style.width = `${size}px`;
-                sparkle.style.height = `${size}px`;
-                sparkle.style.left = `${Math.random() * 100}%`;
-                sparkle.style.top = `${Math.random() * 100}%`;
-                
-                const duration = Math.random() * 1.5 + 3;
+                sparkle.style.width = `${size}px`; sparkle.style.height = `${size}px`;
+                sparkle.style.left = `${Math.random() * 100}%`; sparkle.style.top = `${Math.random() * 100}%`;
+                const duration = Math.random() * 2 + 1.5;
                 sparkle.style.animation = `twinkle-animation ${duration}s ease-in-out forwards`;
-                
                 sparkleContainer.appendChild(sparkle);
-
                 sparkle.addEventListener('animationend', () => {
                     sparkle.remove();
                     createSparkle();
                 });
             }
-
             for (let i = 0; i < numSparkles; i++) {
                 setTimeout(createSparkle, Math.random() * 2000); 
             }
@@ -313,4 +318,5 @@
     </script>
 </body>
 </html>
+
 
