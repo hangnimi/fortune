@@ -28,6 +28,31 @@
             box-sizing: border-box;
             overflow: hidden;
             position: relative;
+            /* 격자무늬 색상 */
+              --grid-color: #968bc1;
+              /* 배경 색상 */
+              --bg-color: #fff2f6;
+              /* 격자 크기 */
+              --grid-size: 20px;
+            
+              background-color: var(--bg-color);
+              background-image: 
+                /* 세로줄 */
+                repeating-linear-gradient(
+                  to right, 
+                  var(--grid-color) 0, 
+                  var(--grid-color) 1px, 
+                  transparent 1px, 
+                  transparent var(--grid-size)
+                ),
+                /* 가로줄 */
+                repeating-linear-gradient(
+                  to bottom, 
+                  var(--grid-color) 0, 
+                  var(--grid-color) 1px, 
+                  transparent 1px, 
+                  transparent var(--grid-size)
+                );
         }
         .sparkle-container {
             position: absolute;
@@ -386,4 +411,5 @@
     </script>
 </body>
 </html>
+
 
